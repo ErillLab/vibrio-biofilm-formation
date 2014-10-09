@@ -410,7 +410,7 @@ def plot_legend_only():
     legend_dict = dict((l, h) for h, l in zip(handles, labels))
     sorted_keys = sorted(legend_dict.keys())
     figlegend.legend([legend_dict[k] for k in sorted_keys], sorted_keys, loc='center')
-    figlegend.savefig('legend.png')
+    figlegend.savefig('./plots/legend.png')
 
 def get_gene_positions(aln):
     locus_tag = find_eltor_seq(aln).description.split('_')[0]
@@ -482,7 +482,7 @@ def plot(aln, scores, show=False):
         plt.show()
     else:
         # save the figure
-        plt.savefig(desc+'.png', frameon=False)
+        plt.savefig('./plots/' + desc+'.png', frameon=False)
     return plt
 
 def plot_all(alns, show=False):
