@@ -497,7 +497,7 @@ def plot(aln, scores, show=False):
         plt.show()
     else:
         # save the figure
-        plt.savefig('./plots/' + desc+'.png', frameon=False, dpi=200, bbox_inches='tight')
+        plt.savefig('./plots/' + desc+'.png', frameon=False, dpi=200)
     return plt
 
 def plot_all(scores, show=False):
