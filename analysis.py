@@ -19,6 +19,7 @@ import collections
 import pylab
 import itertools
 import pandas as pd
+import matplotlib
 
 Entrez.email = 'sefa1@umbc.edu'
 EVAL_THRESHOLD = 10**-50
@@ -395,11 +396,17 @@ def get_color_patterns():
         color_pattern_dict[tf] = (col, pattern)
     return color_pattern_dict
 
-def plot_legend_only():
+font = {'size'   : 18}
+matplotlib.rc('font', **font)
+
+def plot_legend_only(horizontal=False):
     """Only plot the legend"""
     color_patterns = get_color_patterns()
     fig = pylab.figure()
-    figlegend = pylab.figure(figsize=(2, 5))
+    if horizontal:
+        figlegend = pylab.figure(figsize=(10, 1))
+    else:
+        figlegend = pylab.figure(figsize=(2, 5))
     ax = fig.add_subplot(111)
     for tf, (acolor, apattern) in color_patterns.items():
         rect = pylab.Rectangle((0, 0), 10, 10, alpha=0.6,
@@ -409,8 +416,12 @@ def plot_legend_only():
     handles, labels = ax.get_legend_handles_labels()
     legend_dict = dict((l, h) for h, l in zip(handles, labels))
     sorted_keys = sorted(legend_dict.keys())
-    figlegend.legend([legend_dict[k] for k in sorted_keys], sorted_keys, loc='center')
-    figlegend.savefig('./plots/legend.png')
+    if horizontal:
+        figlegend.legend([legend_dict[k] for k in sorted_keys], sorted_keys,
+                         loc='center', ncol=len(TFS))
+    else:
+        figlegend.legend([legend_dict[k] for k in sorted_keys], sorted_keys, loc='center')
+    figlegend.savefig('./plots/legend.png', dpi=200)
 
 def get_gene_positions(aln):
     locus_tag = find_eltor_seq(aln).description.split('_')[0]
@@ -437,8 +448,8 @@ def plot(aln, scores, show=False):
     # tf binding site layer
     ax1.set_xlim(0, aln.get_alignment_length())
     ax1.set_ylim(0, 105)
-    ax1.yaxis.get_major_ticks()[0].label1.set_visible(False) # remove zero tick
-    ax1.set_ylabel("% promoters \nwith functional site")
+    ax2.yaxis.get_major_ticks()[0].label1.set_visible(False) # remove zero tick
+    ax1.set_ylabel("% proms.")
     # promoter search
     #scores = pssm_search_all(aln)
     for tf in TFS:
@@ -471,7 +482,11 @@ def plot(aln, scores, show=False):
     ax2.plot(ent)
     ax2.set_ylim(0, 1.5)
     ax2.invert_yaxis()
-    ax2.set_ylabel("Entropy")
+    ax2.set_ylabel("H(x)")
+
+    # ticks
+    ax1.yaxis.set_ticks([0, 50, 100])
+    ax2.yaxis.set_ticks([0, 0.4, 0.8, 1.2])
 
     desc = find_eltor_seq(aln).description
     locus_tag = desc.split('_')[0]
@@ -482,12 +497,12 @@ def plot(aln, scores, show=False):
         plt.show()
     else:
         # save the figure
-        plt.savefig('./plots/' + desc+'.png', frameon=False)
+        plt.savefig('./plots/' + desc+'.png', frameon=False, dpi=200, bbox_inches='tight')
     return plt
 
-def plot_all(alns, show=False):
-    for aln in alns:
-        plot(aln, show)
+def plot_all(scores, show=False):
+    for aln,score in scores:
+        plot(aln, score, show)
 
 def list_of_isolates():
     alignments = read_alignments()
