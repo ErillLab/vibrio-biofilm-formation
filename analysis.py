@@ -396,15 +396,15 @@ def get_color_patterns():
         color_pattern_dict[tf] = (col, pattern)
     return color_pattern_dict
 
-font = {'size'   : 18}
-matplotlib.rc('font', **font)
+matplotlib.rc('font',**{'family':'serif','serif':['Computer Modern'], 'size':22})
+matplotlib.rc('text', usetex=True)
 
 def plot_legend_only(horizontal=False):
     """Only plot the legend"""
     color_patterns = get_color_patterns()
     fig = pylab.figure()
     if horizontal:
-        figlegend = pylab.figure(figsize=(10, 1))
+        figlegend = pylab.figure(figsize=(16, 1))
     else:
         figlegend = pylab.figure(figsize=(2, 5))
     ax = fig.add_subplot(111)
@@ -437,9 +437,26 @@ def get_gene_positions(aln):
             correct_end = i
     return (correct_start, correct_end)
 
+def locus_tag2gene(locus_tag):
+    """Return the gene name, given a locus tag"""
+    d = {'VC0665': 'vpsR',
+         'VC0916': 'vpsU',
+         'VC0917': 'vpsA',
+         'VC0928': 'rbmA',
+         'VC0930': 'rbmC',
+         'VC0934': 'vpsL',
+         'VCA0952': 'vpsT',
+         'VC1888': 'bapI',
+         'VC2647': 'aphA',
+         'VC0583': 'hapR',
+         'VCA0075': '',         # don't use gene name for this one
+         'VCA0785': 'cdgC'
+     }
+    return d[locus_tag]
+
 def plot(aln, scores, show=False):
     """Plot the alignment"""
-    pylab.rcParams['figure.figsize'] = (15, 3)
+    pylab.rcParams['figure.figsize'] = (15, 3.5)
     fig, (ax1, ax2) = plt.subplots(2, sharex=True)
 
     plt.setp(ax1.get_xticklabels(), visible=False)
@@ -449,7 +466,7 @@ def plot(aln, scores, show=False):
     ax1.set_xlim(0, aln.get_alignment_length())
     ax1.set_ylim(0, 105)
     ax2.yaxis.get_major_ticks()[0].label1.set_visible(False) # remove zero tick
-    ax1.set_ylabel("% proms.")
+    ax1.set_ylabel("\% promoters")
     # promoter search
     #scores = pssm_search_all(aln)
     for tf in TFS:
@@ -490,9 +507,11 @@ def plot(aln, scores, show=False):
 
     desc = find_eltor_seq(aln).description
     locus_tag = desc.split('_')[0]
-    gene = desc.split('_')[1]
-    print locus_tag, gene
-    plt.title("%s (%s)" % (locus_tag, gene), y=2)
+    gene = locus_tag2gene(locus_tag)
+    if gene:
+        plt.title(r"%s (\textit{%s})" % (locus_tag, gene), y=2)
+    else:
+        plt.title(r"%s" % (locus_tag), y=2)
     if show:
         plt.show()
     else:
@@ -509,7 +528,7 @@ def list_of_isolates():
     seq_descriptions = [seq.description for seq in alignments[2]]
     bioprojects = [desc.split('_')[0] for desc in seq_descriptions]
     get_org_names(bioprojects)
-    
+
 def get_genome(acc):
     """Get genome record given the accession number."""
     gbk_file = os.path.join(DATA_DIR, 'genomes', acc+'.gbk')
