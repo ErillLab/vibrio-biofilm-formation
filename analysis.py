@@ -388,7 +388,18 @@ def pssm_search_all(aln):
     return scores
 
 def get_color_patterns():
-    colors = "rgbcmyk"
+
+
+    colors = [(31, 119, 180), (255, 127, 14), (44, 160, 44), (214, 39, 40),
+              (148, 103, 189), (140, 86, 75), (188, 189, 34),  (227, 119, 194),
+              (23, 190, 207)]
+    # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.
+    for i in range(len(colors)):
+        r, g, b = colors[i]
+        colors[i] = (r / 255., g / 255., b / 255.)
+
+    #colors = "rgbcmyk"
+
     patterns = ('/', '\\', '.', 'o', 'x', '-')
     col_pats = zip(colors, patterns)
     color_pattern_dict = {}
@@ -409,9 +420,10 @@ def plot_legend_only(horizontal=False):
         figlegend = pylab.figure(figsize=(2, 5))
     ax = fig.add_subplot(111)
     for tf, (acolor, apattern) in color_patterns.items():
-        rect = pylab.Rectangle((0, 0), 10, 10, alpha=0.6,
+        rect = pylab.Rectangle((0, 0), 10, 10, alpha=1,
                                edgecolor=acolor, hatch=apattern,
-                               facecolor='w',label=tf)
+                               facecolor='w',label=tf,
+                               linewidth=3.5)
         ax.add_patch(rect)
     handles, labels = ax.get_legend_handles_labels()
     legend_dict = dict((l, h) for h, l in zip(handles, labels))
@@ -474,10 +486,10 @@ def plot(aln, scores, show=False):
         acolor, apattern = get_color_patterns()[tf]
         for start_pos in scores[tf]:
             conservation = len(scores[tf][start_pos]) / float(len(aln)) * 100
-            rect = pylab.Rectangle((start_pos, 0), mlen, conservation, alpha=0.6,
-                                   edgecolor=acolor, hatch=apattern, label=tf,
-                                   facecolor='w',
-                                   linewidth=2)
+            rect = pylab.Rectangle((start_pos, 0), mlen, conservation, alpha=1,
+                                   edgecolor=acolor, label=tf,
+                                   facecolor='none',  hatch=apattern,
+                                   linewidth=3.5)
             ax1.add_patch(rect)
 
             # remove redundant legends
